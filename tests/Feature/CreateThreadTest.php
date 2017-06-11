@@ -13,10 +13,14 @@ class CreateThreadTest extends TestCase
     public function test_guest_cant_create_a_thread()
     {
 
-        $this->expectException('Illuminate\Auth\AuthenticationException');
-        $thread = make('App\Thread');
+       $this->withEceptionHandling();
 
-        $this->post('/threads', $thread->toArray());
+       $this->get('/threads/create')
+       ->assertRedirect('/login');
+
+       $this->post('/threads')
+       ->assertRedirect('/login');
+
     }
 
 
@@ -26,7 +30,7 @@ class CreateThreadTest extends TestCase
     	$this->signIn();
 
     	// raw method gave array attributes
-    	$thread = make('App\Thread');
+    	$thread = create('App\Thread');
 
     	//we have to pass array
     	$this->post('/threads', $thread->toArray());

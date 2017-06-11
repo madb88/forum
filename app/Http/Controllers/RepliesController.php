@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+// use Illuminate\Http\Request;
 use App\Thread;
 
 class RepliesController extends Controller
@@ -13,7 +13,7 @@ class RepliesController extends Controller
 		$this->middleware('auth');
 	}
 
-    public function store(Thread $thread)
+    public function store($channelId, Thread $thread)
     {
     	$thread->addReply([
     		'body' => request('body'),
