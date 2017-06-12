@@ -13,7 +13,7 @@ class CreateThreadTest extends TestCase
     public function test_guest_cant_create_a_thread()
     {
 
-       $this->withEceptionHandling();
+       $this->withExceptionHandling();
 
        $this->get('/threads/create')
        ->assertRedirect('/login');
@@ -30,21 +30,54 @@ class CreateThreadTest extends TestCase
     	$this->signIn();
 
     	// raw method gave array attributes
-    	$thread = create('App\Thread');
+    	$thread = make('App\Thread');
 
     	//we have to pass array
-    	$this->post('/threads', $thread->toArray());
+    	$response = $this->post('/threads', $thread->toArray());
 
     	//go to thread page
-    	$this->get($thread->path())
+        //get Location will return id of thread
+    	$this->get($response->headers->get('Location'))
     	->assertSee($thread->title)
     	->assertSee($thread->body);
     }
 
     public function test_guests_cannot_see_the_create_thread_page()
     {
-        $this->withEceptionHandling()->get('threads/create')->assertRedirect('/login');
+        $this->withExceptionHandling()->get('threads/create')->assertRedirect('/login');
     }
 
+    public function test_a_thread_requires_a_title()
+    {
+        $this->publishAThread(['title' => null])
+        ->assertSessionHasErrors('title');
+    }
+
+    public function test_a_thread_requires_a_body()
+    {
+        $this->publishAThread(['body' => null])
+        ->assertSessionHasErrors('body');
+    }
+
+    public function test_a_thread_requires_a_valid_channel()
+    {
+
+        factory('App\Channel', 2)->create();
+
+        $this->publishAThread(['channel_id' => null])
+        ->assertSessionHasErrors('channel_id');
+
+        $this->publishAThread(['channel_id' => 999])
+        ->assertSessionHasErrors('channel_id');
+    }
+
+    public function publishAThread($overrides = [])
+    {
+        $this->withExceptionHandling()->signIn();
+
+        $thread = make('App\Thread', $overrides);
+
+        return $this->post('/threads', $thread->toArray());
+    }
 
 }

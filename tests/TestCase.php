@@ -32,7 +32,7 @@ abstract class TestCase extends BaseTestCase
    		$this->app->instance(ExceptionHandler::class, new TestHandler); 
    	}
 
-   	public function withEceptionHandling()
+   	public function withExceptionHandling()
    	{
    		$this->app->instance(ExceptionHandler::class, $this->oldExceptionHandler);
 
